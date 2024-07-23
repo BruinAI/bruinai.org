@@ -18,7 +18,10 @@ Hosted with Apache2 with SSL/TLS Certificated provided by LetsEncrypt and Certbo
 
 ## Deployment Notes
 ### .htaccess
-Courtesy of multiple Stack Exchange articles (ChatGPT sucks), the .htaccess file is used to rewrite `bruinai.org/index.html` to `bruinai.org`, remove the `.html` extension from URL's (ex: `/about.html` is rewritten to `/about`), and hides the `/.git/` directory.
+Courtesy of multiple Stack Exchange articles (ChatGPT sucks), the .htaccess file:
+* Rewrites `bruinai.org/index.html` to `bruinai.org`
+* Removes the `.html` extension from URL's (ex: `/about.html` is rewritten to `/about`
+* Hides the `/.git/` directory and this README
 
 <br>
 
