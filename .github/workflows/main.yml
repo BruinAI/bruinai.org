@@ -26,3 +26,11 @@ jobs:
         for file in $(find . -name "*.html"); do
           python urlrewrite.py "$file"
         done
+
+    - name: Commit and push changes
+      run: |
+        git config --global user.name "github-actions"
+        git config --global user.email "github-actions@github.com"
+        git add .
+        git commit -m "Update HTML files by GitHub Action" || echo "No changes to commit"
+        git push
