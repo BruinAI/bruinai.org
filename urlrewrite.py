@@ -11,7 +11,7 @@ def process_html(file_path):
     # essentially if user requests /about.html, it will show /about in the URL bar
     new_path = file_path.replace("./", "")
     if 'index.html' in file_path:
-      content = content.replace('</head>', "<script>if (window.location.pathname === '/index.html') {{window.history.pushState({{}}, '', '/')}};</script></head>")
+      content = content.replace('</head>', "<script>if (window.location.pathname === '/index.html') {window.history.pushState({}, '', '/')};</script></head>")
     else:
       content = content.replace('</head>', f"<script>if (window.location.pathname === '/{new_path}') {{window.history.pushState({{}}, '', '/{new_path[:-5]}')}};</script></head>")
 
