@@ -3,10 +3,7 @@ name: Process HTML Files
 on:
   push:
     branches:
-      - main
-  pull_request:
-    branches:
-      - main
+      - release
 
 jobs:
   build:
@@ -29,8 +26,8 @@ jobs:
 
     - name: Commit and push changes
       run: |
-        git config --global user.name "github-actions"
-        git config --global user.email "github-actions@github.com"
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
         git add .
         git commit -m "Update HTML files by GitHub Action" || echo "No changes to commit"
         git push
