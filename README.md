@@ -4,7 +4,7 @@ Our public facing website
 <br>
 
 Designed in Webflow \
-Hosted with Apache2 with SSL/TLS Certificated provided by LetsEncrypt and Certbot
+Deployed with Github Actions, AWS: CodePipeline, S3, Route 53, and Cloudfront
 
 <br>
 
