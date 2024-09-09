@@ -4,45 +4,19 @@ Our public facing website
 <br>
 
 Designed in Webflow \
-Hosted with Apache2 with SSL/TLS Certificated provided by LetsEncrypt and Certbot
+Deployed with Github Actions, AWS: CodePipeline, S3, Route 53, and Cloudfront \
+`release` branch is meant to be a read-only branch
 
 <br>
 
 ## Website Update Steps
 ![image](https://github.com/user-attachments/assets/dbd737ad-c86e-4a23-ab16-20349fe7dc3a)
 1. In Design mode, export the website into a .zip file
-2. Push files to repository
-3. On the deployment server, pull changes
+2. Commit files to repository in main branch
+3. Submit PR
 
-<br>
-
-## Deployment Notes
-### .htaccess
-Courtesy of multiple Stack Exchange articles (ChatGPT sucks), the .htaccess file:
-* Rewrites `bruinai.org/index.html` to `bruinai.org`
-* Removes the `.html` extension from URL's (ex: `/about.html` is rewritten to `/about`
-* Hides the `/.git/` directory and this README
-
-<br>
-
-### Apache Configuration File
-The current Apache2 config file for the HTTPS deployment is as below:
-```
-<IfModule mod_ssl.c>
-<VirtualHost *:443>
-        ServerAdmin webmaster@localhost
-        DocumentRoot /var/www/html
-        ErrorLog ${APACHE_LOG_DIR}/error.log
-        CustomLog ${APACHE_LOG_DIR}/access.log combined
-        <Directory /var/www/html>
-                Options Indexes FollowSymLinks
-                AllowOverride All
-                Require all granted
-        </Directory>
-        ServerName bruinai.org
-        SSLCertificateFile /etc/letsencrypt/live/bruinai.org/fullchain.pem
-        SSLCertificateKeyFile /etc/letsencrypt/live/bruinai.org/privkey.pem
-        Include /etc/letsencrypt/options-ssl-apache.conf
-</VirtualHost>
-</IfModule>
-```
+### What happens when PR is approved:
+1. A Github Action which uses a Github App we created to combat [this problem](https://github.com/orgs/community/discussions/25305#discussioncomment-8256560) runs `urlrewrite.py` and commits the changes to the `release` branch
+2. `urlrewrite.py` adds some Javascript code to all `.html` files that automatically changes the URL to display without the `.html` (for example, if you try to visit `/about.html`, the JS code will automatically change it to `/about` to look cleaner to the client)
+3. AWS CodePipeline picks up a change in the `release` branch and updates the AWS S3 bucket served with Cloudfront
+4. If you need immediate results, you manually must add an cache invalidation to AWS Cloudfront, otherwise you must wait for caches to expire for your changes to take effect
