@@ -9195,7 +9195,9 @@
     return b[0] === 80 && b[1] === 75 && b[2] === 3 && b[3] === 4;
   }
   async function fetchRequest(url) {
-    return await fetch(new URL(url).href).then((r) => r.arrayBuffer());
+    return await fetch(new URL(url, window?.location?.href).href).then(
+      (r) => r.arrayBuffer()
+    );
   }
   async function base64fromU8(data2) {
     const base64url = await new Promise(
@@ -16691,6 +16693,7 @@
         OBJECT_VALUE: "OBJECT_VALUE",
         PLUGIN_LOTTIE: "PLUGIN_LOTTIE",
         PLUGIN_SPLINE: "PLUGIN_SPLINE",
+        PLUGIN_RIVE: "PLUGIN_RIVE",
         PLUGIN_VARIABLE: "PLUGIN_VARIABLE",
         GENERAL_DISPLAY: "GENERAL_DISPLAY",
         GENERAL_START_ACTION: "GENERAL_START_ACTION",
@@ -18219,6 +18222,134 @@
     }
   });
 
+  // packages/systems/ix2/plugins/IX2Rive.js
+  var require_IX2Rive = __commonJS({
+    "packages/systems/ix2/plugins/IX2Rive.js"(exports2) {
+      "use strict";
+      Object.defineProperty(exports2, "__esModule", {
+        value: true
+      });
+      function _export(target, all) {
+        for (var name2 in all)
+          Object.defineProperty(target, name2, {
+            enumerable: true,
+            get: all[name2]
+          });
+      }
+      _export(exports2, {
+        clearPlugin: function() {
+          return clearPlugin2;
+        },
+        createPluginInstance: function() {
+          return createPluginInstance3;
+        },
+        getPluginConfig: function() {
+          return getPluginConfig2;
+        },
+        getPluginDestination: function() {
+          return getPluginDestination2;
+        },
+        getPluginDuration: function() {
+          return getPluginDuration3;
+        },
+        getPluginOrigin: function() {
+          return getPluginOrigin2;
+        },
+        renderPlugin: function() {
+          return renderPlugin2;
+        }
+      });
+      var FIT_KEY = "--wf-rive-fit";
+      var ALIGNMENT_KEY = "--wf-rive-alignment";
+      var queryContainerElement = (elementId) => document.querySelector(`[data-w-id="${elementId}"]`);
+      var getFrontendModule = () => window.Webflow.require("rive");
+      var getPluginConfig2 = (actionItemConfig, key2) => actionItemConfig.value.inputs[key2];
+      var getPluginDuration3 = () => null;
+      var getPluginOrigin2 = (refState2, actionItem) => {
+        if (refState2)
+          return refState2;
+        const result = {};
+        const { inputs = {} } = actionItem.config.value;
+        for (const input in inputs)
+          if (inputs[input] == null)
+            result[input] = 0;
+        return result;
+      };
+      var getPluginDestination2 = (actionItemConfig) => actionItemConfig.value.inputs ?? {};
+      var createPluginInstance3 = (element, actionItem) => {
+        const pluginElementId = actionItem?.config?.target?.pluginElement;
+        return pluginElementId ? queryContainerElement(pluginElementId) : null;
+      };
+      var renderPlugin2 = (containerElement, { PLUGIN_RIVE: props }, actionItem) => {
+        const frontendModule = getFrontendModule();
+        const instance = frontendModule.getInstance(containerElement);
+        const StateMachineInputType = frontendModule.rive.StateMachineInputType;
+        const { name: name2, inputs = {} } = actionItem.config.value || {};
+        function renderRive(riveInstance) {
+          if (riveInstance.loaded) {
+            render();
+          } else {
+            const onLoad = () => {
+              render();
+              riveInstance?.off("load", onLoad);
+            };
+            riveInstance?.on("load", onLoad);
+          }
+          function render() {
+            const stateMachineInputs = riveInstance.stateMachineInputs(name2);
+            if (stateMachineInputs == null)
+              return;
+            if (!riveInstance.isPlaying)
+              riveInstance.play(name2, false);
+            if (FIT_KEY in inputs || ALIGNMENT_KEY in inputs) {
+              const currentLayout = riveInstance.layout;
+              const nextFit = inputs[FIT_KEY] ?? currentLayout.fit;
+              const nextAlignment = inputs[ALIGNMENT_KEY] ?? currentLayout.alignment;
+              if (nextFit !== currentLayout.fit || nextAlignment !== currentLayout.alignment) {
+                riveInstance.layout = currentLayout.copyWith({
+                  fit: nextFit,
+                  alignment: nextAlignment
+                });
+              }
+            }
+            for (const inputName in inputs) {
+              if (inputName === FIT_KEY || inputName === ALIGNMENT_KEY)
+                continue;
+              const machineInput = stateMachineInputs.find((m) => m.name === inputName);
+              if (machineInput == null)
+                continue;
+              switch (machineInput.type) {
+                case StateMachineInputType.Boolean: {
+                  if (inputs[inputName] != null) {
+                    const booleanValue = Boolean(inputs[inputName]);
+                    machineInput.value = booleanValue;
+                  }
+                  break;
+                }
+                case StateMachineInputType.Number: {
+                  const numberValue = props[inputName];
+                  if (numberValue != null)
+                    machineInput.value = numberValue;
+                  break;
+                }
+                case StateMachineInputType.Trigger: {
+                  if (inputs[inputName])
+                    machineInput.fire();
+                  break;
+                }
+              }
+            }
+          }
+        }
+        if (instance?.rive)
+          renderRive(instance.rive);
+        else
+          frontendModule.setLoadHandler(containerElement, renderRive);
+      };
+      var clearPlugin2 = (_containerElement, _actionItem) => null;
+    }
+  });
+
   // packages/systems/ix2/shared-utils/normalizeColor.js
   var require_normalizeColor = __commonJS({
     "packages/systems/ix2/shared-utils/normalizeColor.js"(exports2) {
@@ -18616,6 +18747,7 @@
       var _sharedconstants = (init_shared_constants(), __toCommonJS(shared_constants_exports));
       var _IX2Lottie = /* @__PURE__ */ _interop_require_wildcard(require_IX2Lottie());
       var _IX2Spline = /* @__PURE__ */ _interop_require_wildcard(require_IX2Spline());
+      var _IX2Rive = /* @__PURE__ */ _interop_require_wildcard(require_IX2Rive());
       var _IX2Variable = /* @__PURE__ */ _interop_require_wildcard(require_IX2Variable());
       function _getRequireWildcardCache(nodeInterop) {
         if (typeof WeakMap !== "function")
@@ -18670,6 +18802,12 @@
           _sharedconstants.ActionTypeConsts.PLUGIN_SPLINE,
           {
             ..._IX2Spline
+          }
+        ],
+        [
+          _sharedconstants.ActionTypeConsts.PLUGIN_RIVE,
+          {
+            ..._IX2Rive
           }
         ],
         [
