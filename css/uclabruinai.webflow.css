@@ -25271,8 +25271,16 @@ h1 {
     max-width: none;
   }
 
-  .testimonial-image-four {
-    width: 50%;
+  .testimonial-wrapper-four {
+    min-width: auto;
+  }
+
+  .testimonial-left {
+    width: 300px;
+  }
+
+  .testimonial-image-four, .testimonial-right {
+    width: auto;
   }
 
   .heading-small {
