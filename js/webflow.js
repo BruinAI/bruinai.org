@@ -9312,10 +9312,7 @@
       import_array = __toESM(require_array3());
       init_LottieFetchUtils();
       getLottieLibrary = (win) => win.Webflow.require("lottie").lottie;
-      isInDesigner = (win) => (
-        // @ts-expect-error - TS2339 - Property 'Webflow' does not exist on type 'Window & typeof globalThis'.
-        Boolean(win.Webflow.env("design") || win.Webflow.env("preview"))
-      );
+      isInDesigner = (win) => Boolean(win.Webflow.env("design") || win.Webflow.env("preview"));
       PlayerState = {
         Playing: "playing",
         Stopped: "stopped"
@@ -18277,6 +18274,9 @@
       };
       var getPluginDestination2 = (actionItemConfig) => actionItemConfig.value.inputs ?? {};
       var createPluginInstance3 = (element, actionItem) => {
+        const selectorGuids = actionItem.config?.target?.selectorGuids || [];
+        if (selectorGuids.length > 0)
+          return element;
         const pluginElementId = actionItem?.config?.target?.pluginElement;
         return pluginElementId ? queryContainerElement(pluginElementId) : null;
       };
@@ -22837,7 +22837,11 @@
       const actionGroups = instanceActionGroups[key2];
       const actionItem = (0, import_get2.default)(actionGroups, `[0].actionItems[0]`, {});
       const { actionTypeId } = actionItem;
-      const pluginInstance = isPluginType2(actionTypeId) ? createPluginInstance2(actionTypeId)(element, actionItem) : null;
+      const shouldUsePlugin = (
+        // If it's targeted by class, don't query the element by pluginElementId
+        actionTypeId === ActionTypeConsts.PLUGIN_RIVE ? (actionItem.config?.target?.selectorGuids || []).length === 0 : isPluginType2(actionTypeId)
+      );
+      const pluginInstance = shouldUsePlugin ? createPluginInstance2(actionTypeId)(element, actionItem) : null;
       const destination = getDestinationValues2(
         { element, actionItem, elementApi: IX2BrowserApi_exports },
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -24344,6 +24348,19 @@
     "packages/shared/render/plugins/Form/webflow-forms.js"(exports2, module2) {
       "use strict";
       var Webflow = require_webflow_lib();
+      var renderTurnstileCaptcha = (siteKey, formElement, cb, errorCallback) => {
+        const captchaContainer = document.createElement("div");
+        formElement.appendChild(captchaContainer);
+        turnstile.render(captchaContainer, {
+          sitekey: siteKey,
+          callback: function(token) {
+            return cb(token);
+          },
+          "error-callback": function() {
+            errorCallback();
+          }
+        });
+      };
       Webflow.define("forms", module2.exports = function($, _) {
         var api = {};
         var $doc = $(document);
@@ -24433,13 +24450,38 @@
         }
         function addListeners() {
           listening = true;
-          $doc.on("submit", namespace + " form", function(evt) {
-            var data2 = $.data(this, namespace);
-            if (data2.handler) {
-              data2.evt = evt;
-              data2.handler(data2);
-            }
-          });
+          const turnstileSiteKey = $doc.find("[data-turnstile-sitekey]").data("turnstile-sitekey");
+          if (turnstileSiteKey) {
+            const script = document.createElement("script");
+            script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
+            document.head.appendChild(script);
+            script.onload = () => {
+              $doc.on("submit", namespace + " form", function(evt) {
+                var data2 = $.data(this, namespace);
+                disableBtn(data2);
+                if (data2.handler) {
+                  data2.evt = evt;
+                  evt.preventDefault();
+                  renderTurnstileCaptcha(turnstileSiteKey, this, (turnstileToken) => data2.handler({
+                    ...data2,
+                    turnstileToken
+                  }), () => {
+                    data2.fail.toggle(true);
+                    data2.fail.focus();
+                    reset(data2);
+                  });
+                }
+              });
+            };
+          } else {
+            $doc.on("submit", namespace + " form", function(evt) {
+              var data2 = $.data(this, namespace);
+              if (data2.handler) {
+                data2.evt = evt;
+                data2.handler(data2);
+              }
+            });
+          }
           const CHECKBOX_CLASS_NAME = ".w-checkbox-input";
           const RADIO_INPUT_CLASS_NAME = ".w-radio-input";
           const CHECKED_CLASS = "w--redirected-checked";
