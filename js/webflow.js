@@ -24354,7 +24354,7 @@
         turnstile.render(captchaContainer, {
           sitekey: siteKey,
           callback: function(token) {
-            return cb(token);
+            cb(token);
           },
           "error-callback": function() {
             errorCallback();
@@ -24362,6 +24362,7 @@
         });
       };
       Webflow.define("forms", module2.exports = function($, _) {
+        const TURNSTILE_LOADED_EVENT = "TURNSTILE_LOADED";
         var api = {};
         var $doc = $(document);
         var $forms;
@@ -24376,11 +24377,14 @@
         var listening;
         var formUrl;
         var signFileUrl;
+        const turnstileSiteKey = $doc.find("[data-turnstile-sitekey]").data("turnstile-sitekey");
+        let turnstileScript;
         var chimpRegex = /list-manage[1-9]?.com/i;
         var disconnected = _.debounce(function() {
           alert("Oops! This page has improperly configured forms. Please contact your website administrator to fix this issue.");
         }, 100);
         api.ready = api.design = api.preview = function() {
+          loadTurnstileScript();
           init2();
           if (!inApp && !listening) {
             addListeners();
@@ -24399,6 +24403,16 @@
           }
           $forms.each(build);
         }
+        function loadTurnstileScript() {
+          if (turnstileSiteKey) {
+            turnstileScript = document.createElement("script");
+            turnstileScript.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
+            document.head.appendChild(turnstileScript);
+            turnstileScript.onload = () => {
+              $doc.trigger(TURNSTILE_LOADED_EVENT);
+            };
+          }
+        }
         function build(i, el) {
           var $el = $(el);
           var data2 = $.data(el, namespace);
@@ -24415,6 +24429,18 @@
           data2.fileUploads.each(function(j) {
             initFileUpload(j, data2);
           });
+          if (turnstileSiteKey) {
+            data2.wait = false;
+            disableBtn(data2);
+            $doc.on(typeof turnstile !== "undefined" ? "ready" : TURNSTILE_LOADED_EVENT, function() {
+              renderTurnstileCaptcha(turnstileSiteKey, el, (token) => {
+                data2.turnstileToken = token;
+                reset(data2);
+              }, () => {
+                disableBtn(data2);
+              });
+            });
+          }
           var formName = data2.form.attr("aria-label") || data2.form.attr("data-name") || "Form";
           if (!data2.done.attr("aria-label")) {
             data2.form.attr("aria-label", formName);
@@ -24450,38 +24476,13 @@
         }
         function addListeners() {
           listening = true;
-          const turnstileSiteKey = $doc.find("[data-turnstile-sitekey]").data("turnstile-sitekey");
-          if (turnstileSiteKey) {
-            const script = document.createElement("script");
-            script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
-            document.head.appendChild(script);
-            script.onload = () => {
-              $doc.on("submit", namespace + " form", function(evt) {
-                var data2 = $.data(this, namespace);
-                disableBtn(data2);
-                if (data2.handler) {
-                  data2.evt = evt;
-                  evt.preventDefault();
-                  renderTurnstileCaptcha(turnstileSiteKey, this, (turnstileToken) => data2.handler({
-                    ...data2,
-                    turnstileToken
-                  }), () => {
-                    data2.fail.toggle(true);
-                    data2.fail.focus();
-                    reset(data2);
-                  });
-                }
-              });
-            };
-          } else {
-            $doc.on("submit", namespace + " form", function(evt) {
-              var data2 = $.data(this, namespace);
-              if (data2.handler) {
-                data2.evt = evt;
-                data2.handler(data2);
-              }
-            });
-          }
+          $doc.on("submit", namespace + " form", function(evt) {
+            var data2 = $.data(this, namespace);
+            if (data2.handler) {
+              data2.evt = evt;
+              data2.handler(data2);
+            }
+          });
           const CHECKBOX_CLASS_NAME = ".w-checkbox-input";
           const RADIO_INPUT_CLASS_NAME = ".w-radio-input";
           const CHECKED_CLASS = "w--redirected-checked";
@@ -24522,7 +24523,7 @@
           var btn = data2.btn = data2.form.find(':input[type="submit"]');
           data2.wait = data2.btn.attr("data-wait") || null;
           data2.success = false;
-          btn.prop("disabled", false);
+          btn.prop("disabled", Boolean(turnstileSiteKey && !data2.turnstileToken));
           data2.label && btn.val(data2.label);
         }
         function disableBtn(data2) {

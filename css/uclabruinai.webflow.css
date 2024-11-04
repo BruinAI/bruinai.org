@@ -1132,7 +1132,7 @@ h1 {
 
 .footer-social-grid {
   grid-template-rows: auto;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
 }
 
 .footer-line {
@@ -14627,7 +14627,7 @@ h1 {
   color: var(--white);
   padding-top: 10px;
   font-family: Poppins, sans-serif;
-  font-size: 24px;
+  font-size: 18px;
   font-weight: 300;
   line-height: 30px;
 }
@@ -25398,7 +25398,7 @@ h1 {
     padding-right: 1.25rem;
   }
 
-  .section-16 {
+  .inactive-recruitment-header {
     padding-left: 20px;
     padding-right: 20px;
   }
