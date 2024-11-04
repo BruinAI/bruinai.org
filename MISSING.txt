@@ -1,8 +1,0 @@
-The following files failed to download during site export. Please check them in the designer assets view (images) or dashboard (fonts).
-
-images/Akshyae-Final.jpg
-images/Engineering-Director.png
-images/GradientSquare.jpg
-images/Process-Image-Background-Mobile.png
-images/avatar-02.png
-images/suitcase.png
