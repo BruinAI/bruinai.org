@@ -1608,15 +1608,17 @@ h1 {
 
 .navbar_link {
   color: #fff;
-  text-transform: none;
+  text-transform: uppercase;
   white-space: normal;
   padding: .5rem 1rem;
   font-family: Poppins, sans-serif;
-  font-weight: 600;
+  font-weight: 400;
 }
 
 .navbar_link.w--current {
   color: var(--white);
+  text-transform: uppercase;
+  font-weight: 400;
 }
 
 .navbar2_menu {
@@ -15693,10 +15695,14 @@ h1 {
   box-sizing: border-box;
   aspect-ratio: 1;
   object-fit: cover;
-  background-image: linear-gradient(#a3686880, #a3686880);
+  background-image: url('https://d3e54v103j8qbb.cloudfront.net/img/background-image.svg');
+  background-position: 0 0;
+  background-size: auto;
   width: 100%;
   height: auto;
   margin-bottom: 20px;
+  display: block;
+  position: static;
   overflow: clip;
 }
 
@@ -18694,6 +18700,10 @@ h1 {
 
   .navbar_component.committee {
     background-color: var(--black);
+  }
+
+  .navbar_link, .navbar_link.w--current {
+    font-size: 16px;
   }
 
   .hero-vector {
@@ -25460,7 +25470,7 @@ h1 {
 }
 
 #w-node-c096f59f-5f15-a281-0b11-362a1661ff54-1661ff4f {
-  justify-self: center;
+  justify-self: end;
 }
 
 #w-node-ad22ffbd-3b5b-b7cd-016f-87528e624b17-90a20d86 {
