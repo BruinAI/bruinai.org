@@ -2,5 +2,5 @@ index.html
 events.html
 join.html
 board.html
-abount.html
+about.html
 services.html
