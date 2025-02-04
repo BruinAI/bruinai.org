@@ -29,9 +29,19 @@ jobs:
       with:
         python-version: '3.x'
 
+    - name: Remove unnecessary .html files
+      run: |
+        mapfile -t allowed_pages < ./allowed_pages.txt
+        
+        for file in $(find ./website -name "*.html"); do
+          if [[ ! " ${allowed_pages[@]} " =~ " $(basename "$file") " ]]; then
+            rm "$file"  
+          fi
+        done
+
     - name: Process HTML files
       run: |
-        for file in $(find . -name "*.html"); do
+        for file in $(find ./website -name "*.html"); do
           python urlrewrite.py "$file"
         done
 
@@ -40,6 +50,6 @@ jobs:
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
         git checkout -b release
-        git add .
+        git add ./website/*
         git commit -m "Update HTML files by GitHub Action" || echo "No changes to commit"
         git push origin release --force
