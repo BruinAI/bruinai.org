@@ -50,7 +50,7 @@ jobs:
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
         git checkout --orphan release
-        find . -maxdepth 1 -type f -exec rm -f {} +
+        find . -maxdepth 1 -type f -exec rm -f {} + && rm -rf .github
         mv website/* .
         git add .
         git commit -m "Update HTML files by GitHub Action" || echo "No changes to commit"
