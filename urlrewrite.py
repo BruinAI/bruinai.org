@@ -3,7 +3,6 @@ import sys
 def process_html(file_path):
   content = ''
   print(f'Processing {file_path}')
-  return
   
   with open(file_path, 'r') as f:
     content = f.read()

@@ -1,9 +1,10 @@
 name: Process HTML Files
 
-on: workflow_dispatch
-  #push:
-  #  branches:
-  #    - main
+on:
+  push:
+   branches:
+     - main
+  workflow-dispatch:
 
 jobs:
   process_and_release:
