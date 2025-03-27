@@ -9,7 +9,7 @@ def process_html(file_path):
 
     # use javascript window to perform a URL rewrite
     # essentially if user requests /about.html, it will show /about in the URL bar
-    new_path = file_path.replace("./", "")
+    new_path = file_path.replace("./website/", "")
     if 'index.html' in file_path:
       content = content.replace('</head>', "<script>if (window.location.pathname === '/index.html') {window.history.pushState({}, '', '/')};</script></head>")
     else:
